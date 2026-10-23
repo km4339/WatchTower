@@ -1,0 +1,13 @@
+{
+  "name": "watchtower",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A security dashboard with person detection and event monitoring",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

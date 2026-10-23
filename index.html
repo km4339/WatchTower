@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>WatchTower — Security Dashboard</title>
+
+  <meta
+    name="description"
+    content="A security dashboard with webcam person detection and event monitoring."
+  >
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <aside>
+    <a class="brand" href="#">
+      <span class="logo">◈</span>
+      WatchTower<span class="dot">.</span>
+    </a>
+
+    <div class="workspace">
+      PERSONAL WORKSPACE
+      <span>⌄</span>
+    </div>
+
+    <nav>
+      <button class="selected" data-page="overview">
+        ◫
+        <span>Overview</span>
+      </button>
+
+      <button data-page="events">
+        ☷
+        <span>Event history</span>
+        <b id="navCount">0</b>
+      </button>
+
+      <button data-page="settings">
+        ⚙
+        <span>Alert settings</span>
+      </button>
+    </nav>
+
+    <div class="side-bottom">
+      <div class="local">
+        <span class="green-dot"></span>
+        Private by design
+
+        <p>
+          Camera processing stays<br>
+          in your browser.
+        </p>
+      </div>
+
+      <div class="profile">
+        <div class="avatar">KM</div>
+
+        <div>
+          Kevin's workspace
+          <small>Personal project</small>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <span>
+        WORKSPACE
+        <i>/</i>
+        <span id="breadcrumb">Overview</span>
+      </span>
+
+      <div>
+        <span class="green-dot"></span>
+        Browser-local storage
+        <span class="avatar small">KM</span>
+      </div>
+    </header>
+
+    <section class="intro">
+      <div>
+        <div class="eyebrow">YOUR SPACE. IN SIGHT.</div>
+
+        <h1 id="pageTitle">Security overview</h1>
+
+        <p id="pageDesc">
+          A clear view of what's happening, and what needs your attention.
+        </p>
+      </div>
+
+      <div class="date" id="today"></div>
+    </section>
+
+    <!-- Overview page -->
+    <div id="overview" class="page">
+      <div class="stats">
+        <article>
+          <span>MONITORING STATUS</span>
+
+          <strong id="status">
+            Standby
+            <em class="statusDot"></em>
+          </strong>
+
+          <small id="statusSub">Ready when you are</small>
+        </article>
+
+        <article>
+          <span>EVENTS TODAY</span>
+          <strong id="todayCount">0</strong>
+          <small>Across your monitoring sessions</small>
+        </article>
+
+        <article>
+          <span>NEEDS REVIEW</span>
+          <strong id="reviewCount">0</strong>
+          <small>Unreviewed zone activity</small>
+        </article>
+
+        <article>
+          <span>DETECTION SOURCE</span>
+
+          <strong id="source">Not connected</strong>
+
+          <small id="sourceSub">
+            Webcam or interactive demo
+          </small>
+        </article>
+      </div>
+
+      <div class="monitor-grid">
+        <!-- Camera feed -->
+        <section class="panel monitor">
+          <div class="panel-title">
+            <div>
+              <h2>
+                Live monitor
+                <span class="pill" id="liveLabel">OFFLINE</span>
+              </h2>
+
+              <p id="monitorDesc">
+                Connect a camera to begin monitoring
+              </p>
+            </div>
+
+            <span class="mono">CAM 01</span>
+          </div>
+
+          <div class="viewport" id="viewport">
+            <video id="video" muted playsinline></video>
+
+            <canvas
+              id="scene"
+              width="960"
+              height="540"
+            ></canvas>
+
+            <canvas
+              id="overlay"
+              width="960"
+              height="540"
+              aria-label="Camera overlay; drag to draw a monitoring zone"
+            ></canvas>
+
+            <div class="empty" id="empty">
+              <div class="camera-icon">⌾</div>
+
+              <h3>Your watch starts here</h3>
+
+              <p>
+                Connect your webcam or explore a simulated scene.
+              </p>
+
+              <button class="primary" id="startCamera">
+                ◉ Connect camera
+              </button>
+
+              <button class="text" id="startDemo">
+                Try interactive demo →
+              </button>
+            </div>
+
+            <div class="feed-label" id="feedLabel" hidden>
+              <span class="green-dot"></span>
+
+              <span id="feedName">
+                DEMO • SIMULATED ACTIVITY
+              </span>
+            </div>
+
+            <div id="timecode"></div>
+          </div>
+
+          <div class="monitor-footer">
+            <span>
+              <span class="green-dot"></span>
+              <span id="feedStatus">No active feed</span>
+            </span>
+
+            <div>
+              <button id="drawZone" disabled>
+                ▧ Draw zone
+              </button>
+
+              <button id="stop" disabled>
+                ■ Stop feed
+              </button>
+            </div>
+          </div>
+
+          <p id="notice" role="status"></p>
+        </section>
+
+        <!-- Monitoring controls -->
+        <section class="panel controls">
+          <div class="panel-title">
+            <h2>Monitoring controls</h2>
+            <span>⌁</span>
+          </div>
+
+          <div class="control-section">
+            <div class="row">
+              <div>
+                <h3>Arm monitoring</h3>
+                <p>Log people entering your zone</p>
+              </div>
+
+              <label class="switch">
+                <input
+                  id="armed"
+                  type="checkbox"
+                  aria-label="Arm monitoring"
+                  checked
+                >
+                <span></span>
+              </label>
+            </div>
+
+            <div class="zone-card">
+              <span>▧</span>
+
+              <div>
+                <strong>Detection zone</strong>
+                <p id="zoneText">Full camera frame</p>
+              </div>
+
+              <button
+                id="resetZone"
+                aria-label="Reset monitoring zone"
+              >
+                ↺
+              </button>
+            </div>
+          </div>
+
+          <div class="control-section">
+            <div class="row">
+              <h3>Detection confidence</h3>
+              <b id="confidenceLabel">65%</b>
+            </div>
+
+            <input
+              id="confidence"
+              type="range"
+              min="30"
+              max="95"
+              value="65"
+              aria-label="Detection confidence"
+            >
+
+            <div class="range-label">
+              <span>More sensitive</span>
+              <span>More selective</span>
+            </div>
+          </div>
+
+          <div class="control-section">
+            <div class="row">
+              <div>
+                <h3>Sound alerts</h3>
+                <p>Play a tone for new events</p>
+              </div>
+
+              <label class="switch">
+                <input
+                  id="sound"
+                  type="checkbox"
+                  aria-label="Sound alerts"
+                >
+                <span></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="info">
+            <span>ⓘ</span>
+
+            <p>
+              Detection identifies people, not identities.
+              Review each event before taking action.
+            </p>
+          </div>
+
+          <button id="simulate" class="secondary" disabled>
+            ＋ Simulate a zone entry
+          </button>
+        </section>
+      </div>
+
+      <!-- Recent events -->
+      <section class="panel recent">
+        <div class="panel-title">
+          <div>
+            <h2>Recent activity</h2>
+
+            <p>
+              Your latest detection events, all in one place.
+            </p>
+          </div>
+
+          <button class="text" id="viewEvents">
+            View all events ↗
+          </button>
+        </div>
+
+        <div id="recentList"></div>
+      </section>
+    </div>
+
+    <!-- Event history page -->
+    <div id="events" class="page" hidden>
+      <section class="panel">
+        <div class="panel-title">
+          <h2>All events</h2>
+
+          <div class="toolbar">
+            <select id="filter" aria-label="Filter events">
+              <option value="all">All activity</option>
+              <option value="new">Needs review</option>
+              <option value="reviewed">Reviewed</option>
+            </select>
+
+            <button id="export">
+              Export CSV ↗
+            </button>
+
+            <button id="clear">
+              Clear history
+            </button>
+          </div>
+        </div>
+
+        <div id="allList"></div>
+      </section>
+    </div>
+
+    <!-- Settings page -->
+    <div id="settings" class="page" hidden>
+      <section class="panel settings">
+        <h2>Alert preferences</h2>
+
+        <p>
+          Changes are saved automatically on this browser.
+        </p>
+
+        <label>
+          Minimum seconds between events
+
+          <input
+            id="cooldown"
+            type="number"
+            min="3"
+            max="300"
+            value="10"
+          >
+        </label>
+
+        <label>
+          Maximum saved snapshots
+
+          <input
+            id="maxEvents"
+            type="number"
+            min="10"
+            max="100"
+            value="50"
+          >
+        </label>
+
+        <div class="info">
+          <p>
+            Webcam frames are processed on your device.
+            Event snapshots and preferences are saved in this browser.
+            The detection model is downloaded from an external host
+            when you connect a camera.
+            This prototype monitors only while the page is open.
+          </p>
+        </div>
+
+        <button class="secondary" id="back">
+          Return to overview →
+        </button>
+      </section>
+    </div>
+
+    <footer>
+      WATCHTOWER
+
+      <span>
+        A little more awareness. A little more peace of mind.
+      </span>
+
+      <span>
+        PERSON DETECTION · LOCAL PROCESSING
+      </span>
+    </footer>
+  </main>
+
+  <!-- Event details popup -->
+  <dialog id="detail" aria-labelledby="detailTitle">
+    <button
+      id="closeDetail"
+      class="close"
+      aria-label="Close event details"
+    >
+      ✕
+    </button>
+
+    <h2 id="detailTitle">Event details</h2>
+
+    <img
+      id="detailImage"
+      alt="Captured zone activity"
+    >
+
+    <p id="detailText"></p>
+
+    <button id="markReviewed" class="primary">
+      Mark as reviewed
+    </button>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
